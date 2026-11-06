@@ -951,9 +951,40 @@
         <div class="brand-note">Gestión de facturación</div>
       </div>
     </div>
-    <button id="goData" type="button">Mis datos</button>
+    < <button id="goData" type="button">Mis datos</button>
   </header>
   <main class="home-page" id="homePage">
+    <section id="authBox" class="panel" style="max-width:500px;margin:20px auto">
+      <h2>Acceso</h2>
+
+      <label>
+        Correo
+        <input id="loginEmail" type="email">
+      </label>
+
+      <br><br>
+
+      <label>
+        Contraseña
+        <input id="loginPassword" type="password">
+      </label>
+
+      <br><br>
+
+      <button id="btnRegister" type="button">
+        Crear cuenta
+      </button>
+
+      <button id="btnLogin" type="button">
+        Iniciar sesión
+      </button>
+
+      <button id="btnLogout" type="button" hidden>
+        Cerrar sesión
+      </button>
+
+      <p id="authStatus"></p>
+    </section>
     <div class="home-actions">
       <button id="goCreate" class="home-choice" type="button"><span class="choice-icon"
           aria-hidden="true">＋</span><span>Crear factura</span></button>
@@ -1486,8 +1517,18 @@
   </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    import {
+      getFirestore
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAE0jCIQxn6WstfB4laaOWuoDNkWNkJouE",
@@ -1503,26 +1544,12 @@
     window.auth = getAuth(app);
     window.db = getFirestore(app);
 
-    console.log("Firebase conectado correctamente");
-  </script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAE0jCIQxn6WstfB4laaOWuoDNkWNkJouE",
-      authDomain: "facturas-hector.firebaseapp.com",
-      projectId: "facturas-hector",
-      storageBucket: "facturas-hector.firebasestorage.app",
-      messagingSenderId: "912775387870",
-      appId: "1:912775387870:web:fb7b3c228a84dd6c12004f"
+    window.firebaseFns = {
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
     };
-
-    const app = initializeApp(firebaseConfig);
-
-    window.auth = getAuth(app);
-    window.db = getFirestore(app);
 
     console.log("Firebase conectado correctamente");
   </script>
