@@ -953,7 +953,7 @@
     </div>
     <button id="goData" type="button">Mis datos</button>
   </header>
-  <main class="home-page" id="homePage">
+  <main class="home-page" id="homePage" style="display:none"></main>
     <section id="authBox" class="panel" style="max-width:500px;margin:20px auto">
       <h2>Acceso</h2>
 
@@ -1567,7 +1567,7 @@
           password
         );
 
-        alert("Cuenta creada: " + result.user.email);
+        alert("Cuenta creada correctamente: " + result.user.email);
       } catch (error) {
         alert(error.message);
         console.error(error);
@@ -1585,7 +1585,8 @@
           password
         );
 
-        alert("Bienvenido " + result.user.email);
+         window.location.href = "app.html";
+
       } catch (error) {
         alert(error.message);
         console.error(error);
