@@ -58,6 +58,73 @@
     <p id="status"></p>
   </div>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      setPersistence,
+      browserLocalPersistence
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAE0jCIQxn6WstfB4laaOWuoDNkWNkJouE",
+      authDomain: "facturas-hector.firebaseapp.com",
+      projectId: "facturas-hector",
+      storageBucket: "facturas-hector.firebasestorage.app",
+      messagingSenderId: "912775387870",
+      appId: "1:912775387870:web:fb7b3c228a84dd6c12004f"
+    };
+
+    const auth = getAuth(initializeApp(firebaseConfig));
+    const emailInput = document.getElementById('loginEmail');
+    const passwordInput = document.getElementById('loginPassword');
+    const status = document.getElementById('status');
+    const loginButton = document.getElementById('btnLogin');
+    const registerButton = document.getElementById('btnRegister');
+
+    function showError(error) {
+      const messages = {
+        'auth/invalid-email': 'Escribe un correo electrónico válido.',
+        'auth/user-not-found': 'No existe una cuenta con ese correo. Puedes crearla con el botón correspondiente.',
+        'auth/wrong-password': 'La contraseña no es correcta.',
+        'auth/invalid-credential': 'El correo o la contraseña no son correctos.',
+        'auth/email-already-in-use': 'Ese correo ya tiene una cuenta. Prueba a iniciar sesión.',
+        'auth/weak-password': 'La contraseña debe tener al menos 6 caracteres.',
+        'auth/operation-not-allowed': 'Firebase aún no tiene activado el acceso con correo y contraseña.',
+        'auth/network-request-failed': 'No hay conexión con Firebase. Comprueba internet e inténtalo de nuevo.'
+      };
+      status.textContent = messages[error.code] || 'No se pudo completar el acceso. Comprueba los datos e inténtalo de nuevo.';
+    }
+
+    async function runAccess(action) {
+      status.textContent = 'Conectando…';
+      loginButton.disabled = true;
+      registerButton.disabled = true;
+      try {
+        await setPersistence(auth, browserLocalPersistence);
+        await action(emailInput.value.trim(), passwordInput.value);
+        status.textContent = 'Acceso correcto. Abriendo las facturas…';
+      } catch (error) {
+        showError(error);
+        loginButton.disabled = false;
+        registerButton.disabled = false;
+      }
+    }
+
+    loginButton.addEventListener('click', () => runAccess((email, password) =>
+      signInWithEmailAndPassword(auth, email, password)
+    ));
+    registerButton.addEventListener('click', () => runAccess((email, password) =>
+      createUserWithEmailAndPassword(auth, email, password)
+    ));
+
+    onAuthStateChanged(auth, user => {
+      if (user) window.location.replace('app.html');
+    });
+  </script>
 </body>
 
 </html>
