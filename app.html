@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Facturas</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#edf1f2;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+}
+
+.card{
+  background:white;
+  padding:30px;
+  border-radius:12px;
+  width:350px;
+  box-shadow:0 4px 15px rgba(0,0,0,.1);
+}
+
+input{
+  width:100%;
+  padding:10px;
+  margin-top:5px;
+  margin-bottom:15px;
+  box-sizing:border-box;
+}
+
+button{
+  width:100%;
+  padding:10px;
+  margin-top:10px;
+}
+</style>
+
+</head>
+<body>
+
+<div class="card">
+  <h1>FACTURAS</h1>
+
+  <label>Correo</label>
+  <input id="loginEmail" type="email">
+
+  <label>Contraseña</label>
+  <input id="loginPassword" type="password">
+
+  <button id="btnRegister">Crear cuenta</button>
+  <button id="btnLogin">Iniciar sesión</button>
+
+  <p id="status"></p>
+</div>
+
+</body>
+</html>
