@@ -228,7 +228,14 @@
         }
 
         .mobile-editor-toggle { display: none; }
-        .account-toggle { display: none; }
+        .account-menu { position: relative; z-index: 60; margin-left: auto; flex: 0 0 auto; }
+        .account-toggle { display: grid; place-items: center; width: 44px; height: 44px; min-width: 44px; margin: 0; padding: 9px; border-radius: 50%; background: var(--panel); color: var(--accent); }
+        .account-toggle svg { display: block; width: 22px; height: 22px; fill: currentColor; }
+        .account-panel { position: absolute; top: calc(100% + 8px); right: 0; z-index: 80; display: none; flex-direction: column; flex-wrap: nowrap; align-items: stretch; gap: 8px; width: min(280px, calc(100vw - 24px)); margin: 0; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); box-shadow: 0 12px 32px #0005; }
+        .account-panel.account-open { display: flex; }
+        .account-panel #accountLabel { display: block; padding: 2px 4px 8px; overflow-wrap: anywhere; color: var(--muted); font-size: 12px; }
+        .account-panel button { width: 100%; margin: 0; text-align: left; }
+
 
         .app {
             display: grid;
@@ -881,12 +888,7 @@
             .home-header .brand-mark { width: 52px; height: 52px; flex-basis: 52px; }
             .brand-name { font-size: 14px; }
             .brand-note { font-size: 10px; }
-            .account-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; width: auto; min-width: 86px; min-height: 42px; margin: 0; padding: 8px 12px; }
-            .account-panel { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; max-height: 0; overflow: hidden; opacity: 0; transform: translateY(-6px); margin: 0; padding: 0 12px; border: 1px solid transparent; border-radius: 12px; background: var(--panel); transition: max-height .22s ease, opacity .18s ease, transform .22s ease, padding .22s ease; }
-            .account-panel.account-open { max-height: 220px; opacity: 1; transform: translateY(0); padding: 12px; border-color: var(--line); }
-            .account-panel #accountLabel { grid-column: 1 / -1; text-align: center; overflow-wrap: anywhere; font-size: 12px; }
-            .account-panel button { width: 100%; min-width: 0; min-height: 42px; margin: 0; padding: 8px 6px; font-size: 11px; }
-            .account-panel #signOutBtn { grid-column: 1 / -1; }
+            .account-toggle { width: 44px; height: 44px; min-width: 44px; }
             .app { display: block; padding-bottom: 78px; }
             .form {
                 position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; width: 100%;
@@ -1000,8 +1002,12 @@
                 <div class="brand-note">Gestión de facturación</div>
             </div>
         </div>
-        <button id="accountToggle" class="account-toggle" type="button" aria-expanded="false" aria-controls="accountPanel"><span id="accountToggleLabel">Cuenta</span><span id="accountToggleArrow" aria-hidden="true">⌄</span></button>
-        <div class="row account-panel" id="accountPanel"><span id="accountLabel" class="brand-note"></span><button id="goData" type="button">Mis datos</button><button id="changePasswordBtn" type="button">Cambiar contraseña</button><button id="signOutBtn" type="button">Cerrar sesión</button></div>
+        <div class="account-menu">
+            <button id="accountToggle" class="account-toggle" type="button" aria-label="Abrir menú de cuenta" aria-expanded="false" aria-controls="accountPanel" title="Menú de cuenta">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="1.7"/><circle cx="12" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/><circle cx="6" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18" cy="12" r="1.7"/><circle cx="6" cy="18" r="1.7"/><circle cx="12" cy="18" r="1.7"/><circle cx="18" cy="18" r="1.7"/></svg>
+            </button>
+            <div class="row account-panel" id="accountPanel"><span id="accountLabel" class="brand-note"></span><button id="goData" type="button">Mis datos</button><button id="changePasswordBtn" type="button">Cambiar contraseña</button><button id="signOutBtn" type="button">Cerrar sesión</button></div>
+        </div>
     </header>
     <main class="home-page" id="homePage" hidden>
         <div class="home-actions">
@@ -1509,8 +1515,21 @@
                 var panel = $('#accountPanel');
                 var open = panel.classList.toggle('account-open');
                 this.setAttribute('aria-expanded', String(open));
-                $('#accountToggleLabel').textContent = open ? 'Cerrar' : 'Cuenta';
-                $('#accountToggleArrow').textContent = open ? '⌃' : '⌄';
+                this.setAttribute('aria-label', open ? 'Cerrar menú de cuenta' : 'Abrir menú de cuenta');
+            });
+            document.addEventListener('click', function (event) {
+                if (!event.target.closest('.account-menu')) {
+                    $('#accountPanel').classList.remove('account-open');
+                    $('#accountToggle').setAttribute('aria-expanded', 'false');
+                    $('#accountToggle').setAttribute('aria-label', 'Abrir menú de cuenta');
+                }
+            });
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape') {
+                    $('#accountPanel').classList.remove('account-open');
+                    $('#accountToggle').setAttribute('aria-expanded', 'false');
+                    $('#accountToggle').setAttribute('aria-label', 'Abrir menú de cuenta');
+                }
             });
             $('#mobileEditorToggle').addEventListener('click', function () {
                 var panel = $('.form');
