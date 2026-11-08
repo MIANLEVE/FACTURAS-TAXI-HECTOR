@@ -17,6 +17,8 @@
             box-sizing: border-box
         }
 
+        [hidden] { display: none !important }
+
         body {
             margin: 0;
             min-height: 100vh;
@@ -95,6 +97,8 @@
         button:disabled { opacity: .6; cursor: wait }
         .password-field { position: relative }
         .password-field input { padding-right: 54px }
+        #password::-ms-reveal { display: none }
+        .password-toggle svg[hidden] { display: none !important }
         .password-toggle { position: absolute; right: 5px; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; margin: 0; padding: 9px; border: 0; border-radius: 6px; background: transparent; color: #93a9b1; display: grid; place-items: center }
         .password-toggle:hover { color: #5db5cf; background: #15232a; filter: none }
         .password-toggle svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round }
