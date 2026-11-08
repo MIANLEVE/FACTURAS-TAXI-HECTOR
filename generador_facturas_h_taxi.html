@@ -1006,7 +1006,7 @@
             <button id="accountToggle" class="account-toggle" type="button" aria-label="Abrir menú de cuenta" aria-expanded="false" aria-controls="accountPanel" title="Menú de cuenta">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="1.7"/><circle cx="12" cy="6" r="1.7"/><circle cx="18" cy="6" r="1.7"/><circle cx="6" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18" cy="12" r="1.7"/><circle cx="6" cy="18" r="1.7"/><circle cx="12" cy="18" r="1.7"/><circle cx="18" cy="18" r="1.7"/></svg>
             </button>
-            <div class="row account-panel" id="accountPanel"><span id="accountLabel" class="brand-note"></span><button id="goData" type="button">Mis datos</button><button id="changePasswordBtn" type="button">Cambiar contraseña</button><button id="signOutBtn" type="button">Cerrar sesión</button></div>
+            <div class="row account-panel" id="accountPanel" hidden><span id="accountLabel" class="brand-note"></span><button id="goData" type="button">Mis datos</button><button id="changePasswordBtn" type="button">Cambiar contraseña</button><button id="signOutBtn" type="button">Cerrar sesión</button></div>
         </div>
     </header>
     <main class="home-page" id="homePage" hidden>
@@ -1514,12 +1514,22 @@
             $('#accountToggle').addEventListener('click', function () {
                 var panel = $('#accountPanel');
                 var open = panel.classList.toggle('account-open');
+                panel.hidden = !open;
                 this.setAttribute('aria-expanded', String(open));
                 this.setAttribute('aria-label', open ? 'Cerrar menú de cuenta' : 'Abrir menú de cuenta');
+            });
+            $('#accountPanel').addEventListener('click', function (event) {
+                if (event.target.closest('button')) {
+                    this.classList.remove('account-open');
+                    this.hidden = true;
+                    $('#accountToggle').setAttribute('aria-expanded', 'false');
+                    $('#accountToggle').setAttribute('aria-label', 'Abrir menú de cuenta');
+                }
             });
             document.addEventListener('click', function (event) {
                 if (!event.target.closest('.account-menu')) {
                     $('#accountPanel').classList.remove('account-open');
+                    $('#accountPanel').hidden = true;
                     $('#accountToggle').setAttribute('aria-expanded', 'false');
                     $('#accountToggle').setAttribute('aria-label', 'Abrir menú de cuenta');
                 }
@@ -1527,6 +1537,7 @@
             document.addEventListener('keydown', function (event) {
                 if (event.key === 'Escape') {
                     $('#accountPanel').classList.remove('account-open');
+                    $('#accountPanel').hidden = true;
                     $('#accountToggle').setAttribute('aria-expanded', 'false');
                     $('#accountToggle').setAttribute('aria-label', 'Abrir menú de cuenta');
                 }
