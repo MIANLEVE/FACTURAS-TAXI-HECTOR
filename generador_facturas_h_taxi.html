@@ -228,6 +228,7 @@
         }
 
         .mobile-editor-toggle { display: none; }
+        .account-toggle { display: none; }
 
         .app {
             display: grid;
@@ -875,6 +876,17 @@
         }
 
         @media (max-width: 720px) {
+            .home-header { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+            .home-header .brand { gap: 9px; }
+            .home-header .brand-mark { width: 52px; height: 52px; flex-basis: 52px; }
+            .brand-name { font-size: 14px; }
+            .brand-note { font-size: 10px; }
+            .account-toggle { display: flex; align-items: center; justify-content: center; gap: 8px; width: auto; min-width: 86px; min-height: 42px; margin: 0; padding: 8px 12px; }
+            .account-panel { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 100%; max-height: 0; overflow: hidden; opacity: 0; transform: translateY(-6px); margin: 0; padding: 0 12px; border: 1px solid transparent; border-radius: 12px; background: var(--panel); transition: max-height .22s ease, opacity .18s ease, transform .22s ease, padding .22s ease; }
+            .account-panel.account-open { max-height: 220px; opacity: 1; transform: translateY(0); padding: 12px; border-color: var(--line); }
+            .account-panel #accountLabel { grid-column: 1 / -1; text-align: center; overflow-wrap: anywhere; font-size: 12px; }
+            .account-panel button { width: 100%; min-width: 0; min-height: 42px; margin: 0; padding: 8px 6px; font-size: 11px; }
+            .account-panel #signOutBtn { grid-column: 1 / -1; }
             .app { display: block; padding-bottom: 78px; }
             .form {
                 position: fixed; z-index: 30; left: 0; right: 0; bottom: 0; width: 100%;
@@ -988,8 +1000,8 @@
                 <div class="brand-note">Gestión de facturación</div>
             </div>
         </div>
-        <div class="row"><span id="accountLabel" class="brand-note"></span><button id="goData" type="button">Mis
-                datos</button><button id="changePasswordBtn" type="button">Cambiar contraseña</button><button id="signOutBtn" type="button">Cerrar sesión</button></div>
+        <button id="accountToggle" class="account-toggle" type="button" aria-expanded="false" aria-controls="accountPanel"><span id="accountToggleLabel">Cuenta</span><span id="accountToggleArrow" aria-hidden="true">⌄</span></button>
+        <div class="row account-panel" id="accountPanel"><span id="accountLabel" class="brand-note"></span><button id="goData" type="button">Mis datos</button><button id="changePasswordBtn" type="button">Cambiar contraseña</button><button id="signOutBtn" type="button">Cerrar sesión</button></div>
     </header>
     <main class="home-page" id="homePage" hidden>
         <div class="home-actions">
@@ -1493,6 +1505,13 @@
                 if (page === 'data') syncForm();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
+            $('#accountToggle').addEventListener('click', function () {
+                var panel = $('#accountPanel');
+                var open = panel.classList.toggle('account-open');
+                this.setAttribute('aria-expanded', String(open));
+                $('#accountToggleLabel').textContent = open ? 'Cerrar' : 'Cuenta';
+                $('#accountToggleArrow').textContent = open ? '⌃' : '⌄';
+            });
             $('#mobileEditorToggle').addEventListener('click', function () {
                 var panel = $('.form');
                 var open = panel.classList.toggle('mobile-open');
