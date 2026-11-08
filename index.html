@@ -524,7 +524,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    const config = { apiKey: "AIzaSyAE0jCIQxn6WstfB4laaOWuoDNkNKWJouE", authDomain: "facturas-hector.firebaseapp.com", projectId: "facturas-hector", storageBucket: "facturas-hector.firebasestorage.app", messagingSenderId: "912775387870", appId: "1:912775387870:web:fb7b3c228a84dd6c12004f" };
+    const config = { apiKey: "AIzaSyAE0jCIQxn6WstfB4laaOWuoDNkWNkJouE", authDomain: "facturas-hector.firebaseapp.com", projectId: "facturas-hector", storageBucket: "facturas-hector.firebasestorage.app", messagingSenderId: "912775387870", appId: "1:912775387870:web:fb7b3c228a84dd6c12004f" };
     const auth = getAuth(initializeApp(config)); const form = document.getElementById('authForm'), msg = document.getElementById('message'), submit = document.getElementById('submitBtn'), toggle = document.getElementById('toggleBtn'); let creating = false;
     onAuthStateChanged(auth, u => { if (u) location.replace('generador_facturas_h_taxi.html') });
     toggle.onclick = () => { creating = !creating; submit.textContent = creating ? 'Crear cuenta' : 'Iniciar sesión'; toggle.textContent = creating ? 'Ya tengo cuenta' : 'Crear una cuenta'; msg.textContent = ''; document.getElementById('password').autocomplete = creating ? 'new-password' : 'current-password' };
