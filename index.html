@@ -2,116 +2,534 @@
 <html lang="es">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>H TAXI · Acceso privado</title>
-    <style>
-        :root {
-            font-family: Montserrat, "Segoe UI", sans-serif;
-            color: #13262e;
-            background: #edf1f2
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>H TAXI · Acceso privado</title>
+  <style>
+    :root {
+      font-family: Montserrat, "Segoe UI", sans-serif;
+      color: #13262e;
+      background: #edf1f2
+    }
 
-        * {
-            box-sizing: border-box
-        }
+    * {
+      box-sizing: border-box
+    }
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            display: grid;
-            place-items: center;
-            padding: 20px
-        }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 20px
+    }
 
-        .card {
-            width: min(440px, 100%);
-            background: white;
-            border: 1px solid #d3dcdf;
-            border-radius: 16px;
-            padding: 28px;
-            box-shadow: 0 12px 36px #0c2a3618
-        }
+    .card {
+      width: min(440px, 100%);
+      background: white;
+      border: 1px solid #d3dcdf;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 36px #0c2a3618
+    }
 
-        .brand {
-            font-weight: 700;
-            letter-spacing: .18em;
-            color: #0b4a5e;
-            font-size: 22px
-        }
+    .brand {
+      font-weight: 700;
+      letter-spacing: .18em;
+      color: #0b4a5e;
+      font-size: 22px
+    }
 
-        .sub {
-            color: #58707a;
-            margin: 4px 0 24px
-        }
+    .sub {
+      color: #58707a;
+      margin: 4px 0 24px
+    }
 
-        label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            margin: 14px 0 5px
-        }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 14px 0 5px
+    }
 
-        input {
-            width: 100%;
-            padding: 11px;
-            border: 1px solid #cbd6da;
-            border-radius: 7px;
-            font: inherit
-        }
+    input {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid #cbd6da;
+      border-radius: 7px;
+      font: inherit
+    }
 
-        button {
-            width: 100%;
-            margin-top: 12px;
-            padding: 12px;
-            border: 1px solid #0b4a5e;
-            border-radius: 7px;
-            background: #0b4a5e;
-            color: white;
-            font: inherit;
-            font-weight: 700;
-            cursor: pointer
-        }
+    button {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #0b4a5e;
+      border-radius: 7px;
+      background: #0b4a5e;
+      color: white;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer
+    }
 
-        .secondary {
-            background: white;
-            color: #0b4a5e
-        }
+    .secondary {
+      background: white;
+      color: #0b4a5e
+    }
 
-        #message {
-            min-height: 1.5em;
-            color: #a1241c;
-            font-size: 13px
-        }
+    #message {
+      min-height: 1.5em;
+      color: #a1241c;
+      font-size: 13px
+    }
 
-        small {
-            color: #58707a
-        }
-    </style>
+    small {
+      color: #58707a
+    }
+  </style>
 </head>
 
 <body>
-    <main class="card">
-        <div class="brand">H TAXI</div>
-        <p class="sub">Gestión privada de facturas</p>
-        <form id="authForm"><label for="email">Correo electrónico</label><input id="email" type="email"
-                autocomplete="email" placeholder="Introduce el correo" required><label
-                for="password">Contraseña</label><input id="password" type="password" autocomplete="current-password"
-                placeholder="Introduce la contraseña" minlength="6" required><button id="submitBtn"
-                type="submit">Iniciar sesión</button><button id="toggleBtn" class="secondary" type="button">Crear una
-                cuenta</button>
-            <p id="message" role="alert"></p>
-        </form><small>Cada cuenta solo puede consultar sus propios datos.</small>
-    </main>
-    <script type="module">
-        import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-        import {getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-        const config = {apiKey: "AIzaSyAE0jCIQxn6WstfB4laaOWuoDNkNKWJouE", authDomain: "facturas-hector.firebaseapp.com", projectId: "facturas-hector", storageBucket: "facturas-hector.firebasestorage.app", messagingSenderId: "912775387870", appId: "1:912775387870:web:fb7b3c228a84dd6c12004f"};
-        const auth = getAuth(initializeApp(config)); const form = document.getElementById('authForm'), msg = document.getElementById('message'), submit = document.getElementById('submitBtn'), toggle = document.getElementById('toggleBtn'); let creating = false;
-        onAuthStateChanged(auth, u => {if (u) location.replace('generador_facturas_h_taxi.html')});
-        toggle.onclick = () => {creating = !creating; submit.textContent = creating ? 'Crear cuenta' : 'Iniciar sesión'; toggle.textContent = creating ? 'Ya tengo cuenta' : 'Crear una cuenta'; msg.textContent = ''; document.getElementById('password').autocomplete = creating ? 'new-password' : 'current-password'};
-        form.onsubmit = async e => {e.preventDefault(); msg.textContent = ''; submit.disabled = true; try {const email = document.getElementById('email').value.trim(), password = document.getElementById('password').value; if (creating) await createUserWithEmailAndPassword(auth, email, password); else await signInWithEmailAndPassword(auth, email, password); location.replace('generador_facturas_h_taxi.html')} catch (err) {msg.textContent = err.code === 'auth/email-already-in-use' ? 'Ese correo ya tiene una cuenta.' : err.code === 'auth/invalid-credential' ? 'Correo o contraseña incorrectos.' : err.code === 'auth/weak-password' ? 'La contraseña debe tener al menos 6 caracteres.' : err.message} finally {submit.disabled = false} };
-    </script>
+  <main class="card">
+    <div class="brand">H TAXI</div>
+    <p class="sub">Gestión privada de facturas</p>
+    <form id="authForm"><label for="email">Correo electrónico</label><input id="email" type="email" autocomplete="email"
+        placeholder="Introduce el correo" required><label for="password">Contraseña</label><input id="password"
+        type="password" autocomplete="current-password" placeholder="Introduce la contraseña" minlength="6"
+        required><button id="submitBtn" type="submit">Iniciar sesión</button><button id="toggleBtn" class="secondary"
+        type="button">Crear una
+        cuenta</button>
+      <p id="message" role="alert"></p>
+    </form><small>Cada cuenta solo puede consultar sus propios datos.</small>
+  </main>
+
+  <script>
+    window.addEventListener('error', function (e) {
+      var b = document.getElementById('err');
+      if (b) { b.hidden = false; b.textContent = 'Error en la página: ' + e.message + ' (línea ' + e.lineno + ')'; }
+    });
+    (function () {
+      var $ = function (s) { return document.querySelector(s); };
+      var store = {
+        get: function (k, d) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+        set: function (k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } }
+      };
+      function todayISO() { var d = new Date(); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10); }
+      function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+      function fmtDate(iso) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : ''; }
+      function uid() { return Math.random().toString(36).slice(2, 9); }
+
+      var ISSUER0 = { name: 'Hector Higinio Vega Jimenez', dni: '52025618D', phone: '(+34) 669 00 70 16', email: 'hectortoro1984@hotmail.com', addr: 'C/ INVENCIBLES, 3 ESC. IZQ. 2º C\n28019 Madrid MADRID' };
+      var CLIENT0 = { name: '100 ERGO Seguros de Viaje', tel: '913 44 17 37', addr: 'Avda. Isla Graciosa 1, 28703\nSan Sebastián de los Reyes\nMadrid\nSpain' };
+      var LOGO_SVG = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="49" fill="#fff" stroke="#111" stroke-width="1.5"/><circle cx="50" cy="50" r="41" fill="#111"/><circle cx="50" cy="50" r="36" fill="none" stroke="#bbb" stroke-width="1.2"/><text x="50" y="55" text-anchor="middle" font-family="Oswald,Impact,sans-serif" font-size="36" font-weight="600" fill="#e6e6e6">H</text><path d="M29 74l4-8h34l4 8v6H29z" fill="#d6d6d6"/><circle cx="37" cy="80" r="3.2" fill="#111"/><circle cx="63" cy="80" r="3.2" fill="#111"/><\/svg>';
+      var LOGO_DATA = 'data:image/svg+xml;utf8,' + encodeURIComponent(LOGO_SVG);
+
+      function newLine() { return { id: uid(), desc: 'Importe por servicio asociado', amount: '', from: '', to: '', date: todayISO(), t1: '', t2: '', who: 'Pasajera', pax: '' }; }
+
+      var used = store.get('fac.used', '000005');
+      var state = {
+        num: String((parseInt(used, 10) || 0) + 1).padStart(6, '0'),
+        date: todayISO(),
+        client: store.get('fac.client', CLIENT0),
+        issuer: store.get('fac.issuer', ISSUER0),
+        logo: store.get('fac.logo', ''),
+        rate: store.get('fac.rate', '10'),
+        mode: store.get('fac.mode', 'total'),
+        lines: [{ id: uid(), desc: 'Importe por servicio asociado', amount: '35', from: 'Calle de la Esperanza, 4', to: 'Aeropuerto Madrid-Barajas', date: '2026-03-15', t1: '11:30', t2: '12:00', who: 'Pasajera', pax: 'Maira Alejandra Torres Troncoso' }]
+      };
+      var clients = store.get('fac.clients', [CLIENT0]);
+      var invoices = store.get('fac.invoices', []);
+      var invoiceTouched = false;
+      var savedDraft = store.get('fac.draft', null);
+      if (savedDraft && savedDraft.state) {
+        Object.keys(savedDraft.state).forEach(function (key) { state[key] = savedDraft.state[key]; });
+        invoiceTouched = !!savedDraft.touched;
+      }
+      var autoSaveTimer = null;
+
+      /* ===== Cálculo (en céntimos, sin errores de redondeo) ===== */
+      function cents(v) { var n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? Math.round(n * 100) : 0; }
+      function fmt(c) { return (c / 100).toFixed(2); }
+      function calc() {
+        var rate = parseFloat(String(state.rate).replace(',', '.')); if (!isFinite(rate)) rate = 0;
+        var sub = 0, tot = 0, rows = [];
+        state.lines.forEach(function (l) {
+          var a = cents(l.amount), base, t;
+          if (state.mode === 'total') { t = a; base = Math.round(a / (1 + rate / 100)); tot += t; }
+          else { base = a; }
+          sub += base; rows.push(base);
+        });
+        var iva;
+        if (state.mode === 'total') { iva = tot - sub; }
+        else { iva = Math.round(sub * rate / 100); tot = sub + iva; }
+        return { rate: rate, sub: sub, iva: iva, tot: tot, rows: rows };
+      }
+      function renderHistory() {
+        var box = $('#invoiceHistory');
+
+        if (invoices.length === 0) {
+          box.innerHTML = '<p>Todavía no hay facturas guardadas.</p>';
+          return;
+        }
+
+        box.innerHTML = invoices.map(function (inv, i) {
+          var clientName = inv.client && inv.client.name ? inv.client.name : '';
+          return '<article class="line invoice-entry">' +
+            '<input type="checkbox" aria-label="Seleccionar factura ' + esc(inv.num) + '" data-select-invoice="' + i + '">' +
+            '<div><strong>Factura ' + esc(inv.num) + '</strong>' +
+            '<p>Cliente: ' + esc(clientName) + '</p>' +
+            '<p>Fecha: ' + esc(fmtDate(inv.date)) + '</p>' +
+            '<p>Total: ' + esc(inv.total || '') + ' €</p>' +
+            '<div class="invoice-entry-actions">' +
+            '<button type="button" data-open-invoice="' + i + '">Ver factura</button>' +
+            '<button type="button" data-edit-invoice="' + i + '">Editar</button>' +
+            '<button type="button" class="danger" data-delete-invoice="' + i + '">Eliminar</button>' +
+            '</div></div></article>';
+        }).join('');
+      }
+      /* ===== Formulario ===== */
+      function getp(p) { return p.split('.').reduce(function (o, k) { return o[k]; }, state); }
+      function setp(p, v) { var a = p.split('.'), last = a.pop(); a.reduce(function (o, k) { return o[k]; }, state)[last] = v; }
+      function syncForm() {
+        document.querySelectorAll('[data-path]').forEach(function (el) {
+          if (el.type === 'radio') { el.checked = (getp(el.dataset.path) === el.value); }
+          else { el.value = getp(el.dataset.path); }
+        });
+        $('#logoPrev').src = state.logo || LOGO_DATA;
+      }
+      function renderLines() {
+        var amtLabel = state.mode === 'total' ? 'Importe total (IVA incluido) €' : 'Importe sin IVA €';
+        $('#lines').innerHTML = state.lines.map(function (l, i) {
+          return '<div class="line" data-id="' + l.id + '">' +
+            '<div class="line-head"><span>Servicio ' + (i + 1) + '</span>' + (state.lines.length > 1 ? '<button type="button" class="danger" data-del="' + l.id + '">Quitar</button>' : '') + '</div>' +
+            '<div class="grid">' +
+            '<label class="full">Descripción<input data-f="desc" value="' + esc(l.desc) + '"></label>' +
+            '<label class="full amt">' + '<span class="amt-l">' + amtLabel + '</span><input data-f="amount" inputmode="decimal" placeholder="0.00" value="' + esc(l.amount) + '"></label>' +
+            '<label class="full">Origen<input data-f="from" value="' + esc(l.from) + '" autocomplete="off"></label>' +
+            '<label class="full">Destino<input data-f="to" value="' + esc(l.to) + '" autocomplete="off"></label>' +
+            '<label class="full">Fecha del servicio<input type="date" data-f="date" value="' + esc(l.date) + '"></label>' +
+            '<label>Hora inicio<input type="time" data-f="t1" value="' + esc(l.t1) + '"></label>' +
+            '<label>Hora fin<input type="time" data-f="t2" value="' + esc(l.t2) + '"></label>' +
+            '<label>Tipo<select data-f="who">' +
+            '<option' + (l.who === 'Pasajera' ? ' selected' : '') + '>Pasajera</option>' +
+            '<option' + (l.who === 'Pasajero' ? ' selected' : '') + '>Pasajero</option>' +
+            '<option' + (l.who === 'Pasajeros' ? ' selected' : '') + '>Pasajeros</option>' +
+            '</select></label>' +
+            '<label>Nombre<input data-f="pax" value="' + esc(l.pax) + '" autocomplete="off"></label>' +
+            '</div></div>';
+        }).join('');
+      }
+      function renderClients() {
+        var sel = $('#clientSel');
+        sel.innerHTML = '<option value="">Clientes guardados…</option>' + clients.map(function (c, i) { return '<option value="' + i + '">' + esc(c.name) + '</option>'; }).join('');
+      }
+      function persist() {
+        store.set('fac.issuer', state.issuer); store.set('fac.client', state.client);
+        store.set('fac.rate', state.rate); store.set('fac.mode', state.mode);
+        saveDraft();
+      }
+      function saveDraft() {
+        store.set('fac.draft', { state: JSON.parse(JSON.stringify(state)), touched: invoiceTouched });
+      }
+      function saveInvoiceRecord() {
+        var c = calc();
+        var invoice = {
+          num: String(state.num || ''), date: state.date || '',
+          client: JSON.parse(JSON.stringify(state.client)),
+          issuer: JSON.parse(JSON.stringify(state.issuer)),
+          logo: state.logo || '', rate: state.rate, mode: state.mode,
+          lines: JSON.parse(JSON.stringify(state.lines)), total: fmt(c.tot)
+        };
+        var index = invoices.findIndex(function (x) { return String(x.num) === invoice.num; });
+        if (index >= 0) invoices[index] = invoice;
+        else invoices.unshift(invoice);
+        store.set('fac.invoices', invoices);
+        var lastUsed = parseInt(store.get('fac.used', '000005'), 10) || 0;
+        var currentNum = parseInt(state.num, 10) || 0;
+        if (currentNum > lastUsed) store.set('fac.used', String(currentNum).padStart(6, '0'));
+        saveDraft();
+        if ($('#saveStatus')) $('#saveStatus').textContent = 'Guardada automáticamente · ' + new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        renderHistory();
+      }
+      function scheduleInvoiceSave(force) {
+        saveDraft();
+        if (!invoiceTouched && !force) return;
+        if (autoSaveTimer) clearTimeout(autoSaveTimer);
+        if (force) saveInvoiceRecord();
+        else autoSaveTimer = setTimeout(function () { saveInvoiceRecord(); }, 300);
+      }
+
+      /* ===== Vista previa ===== */
+      function nl(s) { return esc(s); }
+      function render() {
+        var c = calc(), s = state, is = s.issuer;
+        $('#sum').innerHTML = '<div><span>Sin IVA</span><b>' + fmt(c.sub) + ' €</b></div><div><span>IVA ' + esc(String(c.rate).replace('.', ',')) + '%</span><b>' + fmt(c.iva) + ' €</b></div><div><span>Total</span><b>' + fmt(c.tot) + ' €</b></div>';
+        var rowsHtml = s.lines.map(function (l, i) {
+          var d = [];
+          var d = [];
+          if (l.from || l.to) {
+            if (l.from) d.push('<div><strong>Origen:</strong> ' + nl(l.from) + '</div>');
+            if (l.to) d.push('<div><strong>Destino:</strong> ' + nl(l.to) + '</div>');
+          }
+          if (l.date) d.push('<div><strong>Fecha:</strong> ' + fmtDate(l.date) + '</div>');
+          if (l.t1 || l.t2) d.push('<div><strong>Hora:</strong> ' + nl(l.t1) + ((l.t1 && l.t2) ? ' – ' : '') + nl(l.t2) + '</div>');
+          if (l.pax) d.push('<div><strong>' + esc(l.who) + ':</strong> ' + nl(l.pax) + '</div>');
+          return '<div class="tr"><span>' + nl(l.desc) + '</span><span>' + fmt(c.rows[i]) + '€</span></div>' + (d.length ? '<div class="detail">' + d.join('') + '</div>' : '');
+        }).join('');
+        var logo = s.logo ? '<img src="' + esc(s.logo) + '" alt="">' : LOGO_SVG;
+        $('#sheet').innerHTML =
+          '<div class="sh-top"><div class="sh-logo">' + logo + '</div><h2 class="sh-title">FACTURA</h2></div>' +
+          '<div class="sh-info"><div><h3 class="sh-h">INFORMACIÓN DEL CLIENTE</h3><dl class="kv">' +
+          '<dt>Nombre:</dt><dd>' + nl(s.client.name) + '</dd><dt>Tel.:</dt><dd>' + nl(s.client.tel) + '</dd><dt>Dirección:</dt><dd>' + nl(s.client.addr) + '</dd></dl></div>' +
+          '<dl class="sh-meta"><dt>FACTURA:</dt><dd>' + nl(s.num) + '</dd><dt>FECHA:</dt><dd>' + fmtDate(s.date) + '</dd></dl></div>' +
+          '<div class="sh-table"><div class="th"><span style="padding-left:12cqw">Descripción</span><span>Importe</span></div>' + rowsHtml + '</div>' +
+          '<div class="rule" style="margin-left:8cqw;margin-right:7cqw"></div>' +
+          '<div class="totals">' +
+          '<span class="lab">Subtotal</span><span class="val">' + fmt(c.sub) + ' <b>€</b></span>' +
+          '<span class="lab">IVA ( ' + esc(String(c.rate).replace('.', ',')) + ' % )</span><span class="val">' + fmt(c.iva) + ' <b>€</b></span>' +
+          '<span class="tot-pill">TOTAL</span><span class="val">' + fmt(c.tot) + '<b>€</b></span></div>' +
+          '<div class="sh-issuer"><h3 class="sh-h">DATOS DEL EMISOR</h3><dl class="kv"><dt>Nombre:</dt><dd>' + nl(is.name) + '</dd><dt>D.N.I</dt><dd>' + nl(is.dni) + '</dd></dl></div>' +
+          '<div class="sh-foot"><div class="lines"><i></i><i></i><i></i></div><div class="foot-in"><span class="c">Contacto:</span><div class="cols"><span>' + nl(is.phone) + '</span><span class="sep"></span><span class="em">' + nl(is.email) + '</span></div></div>' +
+          '<div class="foot-in" style="margin-top:-3.4cqw"><span></span><span class="addr">' + nl(is.addr) + '</span></div></div>';
+      }
+
+      function invoiceSheetHTML(inv) {
+        var snapshot = JSON.parse(JSON.stringify(state));
+        try {
+          state.num = inv.num || '';
+          state.date = inv.date || '';
+          state.client = inv.client || { name: '', tel: '', addr: '' };
+          state.issuer = inv.issuer || ISSUER0;
+          state.logo = inv.logo || '';
+          state.rate = inv.rate == null ? '0' : inv.rate;
+          state.mode = inv.mode || 'total';
+          state.lines = Array.isArray(inv.lines) ? JSON.parse(JSON.stringify(inv.lines)) : [];
+          render();
+          return $('#sheet').innerHTML;
+        } finally {
+          Object.keys(state).forEach(function (key) { delete state[key]; });
+          Object.keys(snapshot).forEach(function (key) { state[key] = snapshot[key]; });
+          render();
+        }
+      }
+      function openInvoiceDocument(selectedInvoices) {
+        var popup = window.open('', '_blank');
+        if (!popup) { alert('El navegador bloqueó la pestaña nueva. Permite las ventanas emergentes para abrir la factura.'); return; }
+        var styleText = Array.prototype.map.call(document.querySelectorAll('style'), function (style) { return style.textContent; }).join('\n');
+        var title = selectedInvoices.length === 1 ? 'Factura ' + selectedInvoices[0].num : 'Facturas seleccionadas';
+        var pages = selectedInvoices.map(function (inv) {
+          return '<section class="print-sheet"><div class="sheetwrap"><div class="sheet">' + invoiceSheetHTML(inv) + '</div></div></section>';
+        }).join('');
+        var doc = '<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + esc(title) + '</title>' +
+          '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Oswald:wght@500;600&display=swap">' +
+          '<style>' + styleText + '\nbody{margin:0;padding:24px;background:#edf1f2}.document-actions{max-width:794px;margin:0 auto 16px;display:flex;gap:8px}.print-sheet{margin:0 auto 24px;break-after:page;page-break-after:always}.print-sheet:last-child{break-after:auto;page-break-after:auto}@media print{@page{size:A4;margin:0}body{padding:0;background:#fff}.document-actions{display:none!important}.print-sheet{width:210mm;margin:0;break-after:page;page-break-after:always}.print-sheet:last-child{break-after:auto;page-break-after:auto}.sheetwrap{width:210mm;max-width:none;margin:0}.sheet{width:100%;height:297mm;min-height:297mm;box-shadow:none;break-inside:avoid;page-break-inside:avoid}}</style></head><body>' +
+          '<div class="document-actions"><button type="button" onclick="window.print()">Imprimir / Guardar como PDF</button></div>' + pages + '</bo' + 'dy></html>';
+        popup.document.open(); popup.document.write(doc); popup.document.close();
+      }
+      function loadInvoiceIntoEditor(inv) {
+        state.num = inv.num;
+        state.date = inv.date;
+        state.client = inv.client;
+        state.issuer = inv.issuer;
+        state.logo = inv.logo || '';
+        store.set('fac.logo', state.logo);
+        state.rate = inv.rate;
+        state.mode = inv.mode;
+        state.lines = JSON.parse(JSON.stringify(inv.lines));
+        invoiceTouched = true;
+        syncForm(); renderLines(); persist(); render(); showPage('create');
+      }
+
+      /* ===== Eventos ===== */
+      document.addEventListener('input', function (e) {
+        var t = e.target;
+        if (t.dataset && t.dataset.path) {
+          if (t.type === 'radio') { if (!t.checked) return; setp(t.dataset.path, t.value); renderLines(); }
+          else setp(t.dataset.path, t.value);
+          if (!$('#app').hidden) invoiceTouched = true;
+          persist(); render();
+          if (invoiceTouched) scheduleInvoiceSave(false);
+        } else if (t.dataset && t.dataset.f) {
+          var box = t.closest('.line'); var l = state.lines.filter(function (x) { return x.id === box.dataset.id; })[0];
+          if (l) { l[t.dataset.f] = t.value; invoiceTouched = true; render(); scheduleInvoiceSave(false); }
+        }
+      });
+      document.addEventListener('change', function (e) {
+        var t = e.target;
+        if (t.dataset && t.dataset.f && t.closest('.line')) {
+          var box = t.closest('.line');
+          var l = state.lines.filter(function (x) { return x.id === box.dataset.id; })[0];
+          if (l) { l[t.dataset.f] = t.value; invoiceTouched = true; render(); scheduleInvoiceSave(false); }
+        }
+      });
+      document.addEventListener('click', function (e) {
+        var b = e.target.closest('button');
+        if (!b) return;
+        if (b.dataset.deleteInvoice !== undefined) {
+          var index = Number(b.dataset.deleteInvoice);
+
+          if (!confirm('¿Seguro que quieres eliminar esta factura?')) return;
+
+          invoices.splice(index, 1);
+          store.set('fac.invoices', invoices);
+          renderHistory();
+
+          alert('Factura eliminada correctamente.');
+          return;
+        }
+
+        // Abrir la factura en una pestaña independiente.
+        if (b.dataset.openInvoice !== undefined) {
+          var inv = invoices[Number(b.dataset.openInvoice)];
+          if (!inv) return;
+          openInvoiceDocument([inv]);
+          return;
+        }
+        if (b.dataset.editInvoice !== undefined) {
+          var editInv = invoices[Number(b.dataset.editInvoice)];
+          if (!editInv) return;
+          loadInvoiceIntoEditor(editInv);
+          return;
+        }
+
+        // Eliminar un servicio
+        if (b.dataset.del) {
+          state.lines = state.lines.filter(function (x) {
+            return x.id !== b.dataset.del;
+          });
+          renderLines();
+          render();
+          invoiceTouched = true;
+          scheduleInvoiceSave(false);
+        }
+      });
+      function showPage(page) {
+        if (!$('#app').hidden && invoiceTouched) scheduleInvoiceSave(true);
+        else saveDraft();
+        var isHome = page === 'home';
+        $('#homeHeader').hidden = !isHome;
+        $('#homePage').hidden = !isHome;
+        $('#screenBar').hidden = isHome;
+        $('#app').hidden = page !== 'create';
+        $('#historyPage').hidden = page !== 'history';
+        $('#dataPage').hidden = page !== 'data';
+        var titles = { create: 'Crear factura', history: 'Facturas guardadas', data: 'Mis datos' };
+        $('#screenTitle').textContent = titles[page] || '';
+        if (page === 'history') renderHistory();
+        if (page === 'data') syncForm();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      $('#goCreate').addEventListener('click', function () { showPage('create'); });
+      $('#goHistory').addEventListener('click', function () { showPage('history'); });
+      $('#goData').addEventListener('click', function () { showPage('data'); });
+      $('#backHome').addEventListener('click', function () { showPage('home'); });
+      $('#selectAllInvoices').addEventListener('click', function () {
+        var boxes = document.querySelectorAll('[data-select-invoice]');
+        var shouldSelect = Array.prototype.some.call(boxes, function (box) { return !box.checked; });
+        boxes.forEach(function (box) { box.checked = shouldSelect; });
+        $('#selectAllInvoices').textContent = shouldSelect ? 'Quitar selección' : 'Seleccionar todas';
+      });
+      $('#printSelected').addEventListener('click', function () {
+        var selected = Array.prototype.map.call(document.querySelectorAll('[data-select-invoice]:checked'), function (box) { return invoices[Number(box.dataset.selectInvoice)]; }).filter(Boolean);
+        if (!selected.length) { alert('Selecciona al menos una factura.'); return; }
+        openInvoiceDocument(selected);
+      });
+      $('#addLine').addEventListener('click', function () { state.lines.push(newLine()); invoiceTouched = true; renderLines(); render(); scheduleInvoiceSave(false); });
+      $('#saveInvoice').addEventListener('click', function () { invoiceTouched = true; scheduleInvoiceSave(true); alert('Factura guardada correctamente.'); });
+      $('#newBtn').addEventListener('click', function () {
+        if (invoiceTouched) scheduleInvoiceSave(true);
+        var lastUsed = parseInt(store.get('fac.used', '000005'), 10) || 0;
+        var currentNum = parseInt(state.num, 10) || 0;
+        state.num = String(Math.max(lastUsed, currentNum) + 1).padStart(6, '0');
+        state.date = todayISO(); state.lines = [newLine()];
+        invoiceTouched = false;
+        saveDraft();
+        syncForm(); renderLines(); render(); window.scrollTo({ top: 0 });
+      });
+      $('#clientSel').addEventListener('change', function (e) {
+        var i = parseInt(e.target.value, 10);
+        var c = clients[i];
+        if (!Number.isInteger(i) || !c) return;
+        state.client = { name: c.name || '', tel: c.tel || '', addr: c.addr || '' };
+        invoiceTouched = true;
+        syncForm(); persist(); render(); scheduleInvoiceSave(false);
+      });
+
+      $('#saveClient').addEventListener('click', function () {
+        var c = {
+          name: String(state.client.name || '').trim(),
+          tel: String(state.client.tel || '').trim(),
+          addr: String(state.client.addr || '').trim()
+        };
+        if (!c.name) {
+          alert('Escribe el nombre del cliente antes de guardarlo.');
+          $('#f-cname').focus();
+          return;
+        }
+
+        // Si hay un cliente seleccionado, actualiza ESE registro aunque cambie su nombre.
+        // Si no hay selección, busca uno con el mismo nombre o crea uno nuevo.
+        var selected = parseInt($('#clientSel').value, 10);
+        var i = Number.isInteger(selected) && selected >= 0 && selected < clients.length
+          ? selected
+          : clients.findIndex(function (x) { return String(x.name || '').trim().toLowerCase() === c.name.toLowerCase(); });
+
+        if (i >= 0) clients[i] = c;
+        else {
+          clients.push(c);
+          i = clients.length - 1;
+        }
+
+        state.client = { name: c.name, tel: c.tel, addr: c.addr };
+        store.set('fac.clients', clients);
+        persist();
+        renderClients();
+        $('#clientSel').value = String(i);
+        render();
+        if (invoiceTouched) scheduleInvoiceSave(false);
+        alert('Cliente guardado correctamente.');
+      });
+
+      $('#delClient').addEventListener('click', function () {
+        var i = parseInt($('#clientSel').value, 10);
+        if (!Number.isInteger(i) || i < 0 || i >= clients.length) return;
+        clients.splice(i, 1);
+        store.set('fac.clients', clients);
+        renderClients();
+        $('#clientSel').value = '';
+        state.client = { name: '', tel: '', addr: '' };
+        syncForm(); persist(); render();
+        if (invoiceTouched) scheduleInvoiceSave(false);
+      });
+      $('#logoFile').addEventListener('change', function (e) {
+        var f = e.target.files[0]; if (!f) return;
+        var r = new FileReader();
+        r.onload = function () { state.logo = r.result; store.set('fac.logo', state.logo); $('#logoPrev').src = state.logo; render(); persist(); if (invoiceTouched) scheduleInvoiceSave(false); };
+        r.readAsDataURL(f);
+      });
+      $('#logoReset').addEventListener('click', function () { state.logo = ''; store.set('fac.logo', ''); $('#logoPrev').src = LOGO_DATA; render(); persist(); if (invoiceTouched) scheduleInvoiceSave(false); });
+      /* El botón de PDF solo aparece si la página está abierta fuera del visor (donde imprimir funciona). */
+      try { if (window.self === window.top) { $('#printBtn').hidden = false; $('#printBtn').addEventListener('click', function () { invoiceTouched = true; scheduleInvoiceSave(true); window.print(); }); } } catch (e) { }
+
+      window.addEventListener('beforeunload', function () {
+        if (autoSaveTimer) clearTimeout(autoSaveTimer);
+        saveDraft();
+        if (invoiceTouched) saveInvoiceRecord();
+      });
+
+      syncForm(); renderClients(); renderLines(); render(); renderHistory(); showPage('home');
+    })();
+  </script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
+    const config = { apiKey: "AIzaSyAE0jCIQxn6WstfB4laaOWuoDNkNKWJouE", authDomain: "facturas-hector.firebaseapp.com", projectId: "facturas-hector", storageBucket: "facturas-hector.firebasestorage.app", messagingSenderId: "912775387870", appId: "1:912775387870:web:fb7b3c228a84dd6c12004f" };
+    const auth = getAuth(initializeApp(config)); const form = document.getElementById('authForm'), msg = document.getElementById('message'), submit = document.getElementById('submitBtn'), toggle = document.getElementById('toggleBtn'); let creating = false;
+    onAuthStateChanged(auth, u => { if (u) location.replace('generador_facturas_h_taxi.html') });
+    toggle.onclick = () => { creating = !creating; submit.textContent = creating ? 'Crear cuenta' : 'Iniciar sesión'; toggle.textContent = creating ? 'Ya tengo cuenta' : 'Crear una cuenta'; msg.textContent = ''; document.getElementById('password').autocomplete = creating ? 'new-password' : 'current-password' };
+    form.onsubmit = async e => { e.preventDefault(); msg.textContent = ''; submit.disabled = true; try { const email = document.getElementById('email').value.trim(), password = document.getElementById('password').value; if (creating) await createUserWithEmailAndPassword(auth, email, password); else await signInWithEmailAndPassword(auth, email, password); location.replace('generador_facturas_h_taxi.html') } catch (err) { msg.textContent = err.code === 'auth/email-already-in-use' ? 'Ese correo ya tiene una cuenta.' : err.code === 'auth/invalid-credential' ? 'Correo o contraseña incorrectos.' : err.code === 'auth/weak-password' ? 'La contraseña debe tener al menos 6 caracteres.' : err.message } finally { submit.disabled = false } };
+  </script>
 </body>
 
 </html>

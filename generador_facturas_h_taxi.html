@@ -1092,11 +1092,11 @@
         const user = await new Promise((resolve) => {
             const unsub = onAuthStateChanged(auth, (u) => { unsub(); resolve(u); }, (e) => { showError(e); resolve(null); });
         });
-        if (!user) { location.replace('acceso.html'); throw new Error('Se necesita iniciar sesión.'); }
+        if (!user) { location.replace('index.html'); throw new Error('Se necesita iniciar sesión.'); }
         document.getElementById('accountLabel').textContent = user.email || 'Cuenta';
         document.getElementById('homeHeader').hidden = false;
         document.getElementById('homePage').hidden = false;
-        document.getElementById('signOutBtn').addEventListener('click', async () => { await signOut(auth); location.replace('acceso.html'); });
+        document.getElementById('signOutBtn').addEventListener('click', async () => { await signOut(auth); location.replace('index.html'); });
         const storagePrefix = 'fac.' + user.uid + '.';
         const remoteRef = doc(db, 'users', user.uid, 'private', 'app');
         try {
