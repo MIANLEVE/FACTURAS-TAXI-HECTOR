@@ -1153,7 +1153,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc, collection, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
         const firebaseConfig = { apiKey: "AIzaSyAE0jCIQxn6WstfB4laaOWuoDNkWNkJouE", authDomain: "facturas-hector.firebaseapp.com", projectId: "facturas-hector", storageBucket: "facturas-hector.firebasestorage.app", messagingSenderId: "912775387870", appId: "1:912775387870:web:fb7b3c228a84dd6c12004f" };
         const fbApp = initializeApp(firebaseConfig);
         const auth = getAuth(fbApp);
@@ -1200,19 +1200,87 @@
         });
         const storagePrefix = 'fac.' + user.uid + '.';
         const remoteRef = doc(db, 'users', user.uid, 'private', 'app');
+        const privateCollection = collection(db, 'users', user.uid, 'private');
+        const pendingLocal = new Map();
+        const localPrefix = storagePrefix + 'fac.';
+        for (let index = 0; index < localStorage.length; index++) {
+            const localKey = localStorage.key(index);
+            if (localKey && localKey.startsWith(localPrefix)) pendingLocal.set(localKey.slice(localPrefix.length), localStorage.getItem(localKey));
+        }
         try {
             const remoteSnap = await getDoc(remoteRef);
             if (remoteSnap.exists()) {
                 const remoteData = remoteSnap.data();
-                Object.keys(remoteData).forEach((key) => localStorage.setItem(storagePrefix + 'fac.' + key, JSON.stringify(remoteData[key])));
+                Object.keys(remoteData).forEach((key) => {
+                    const localKey = storagePrefix + 'fac.' + key;
+                    const localValue = localStorage.getItem(localKey);
+                    if (localValue === null) localStorage.setItem(localKey, JSON.stringify(remoteData[key]));
+                    else pendingLocal.set(key, localValue);
+                });
             }
+            const partsSnap = await getDocs(privateCollection);
+            const groupedParts = new Map();
+            partsSnap.forEach((partDoc) => {
+                const part = partDoc.data();
+                if (part.syncVersion !== 1 || typeof part.key !== 'string' || !Number.isInteger(part.part) || typeof part.payload !== 'string') return;
+                if (!groupedParts.has(part.key)) groupedParts.set(part.key, []);
+                groupedParts.get(part.key).push(part);
+            });
+            groupedParts.forEach((parts, key) => {
+                parts.sort((a, b) => a.part - b.part);
+                const total = parts[0]?.total;
+                if (!Number.isInteger(total) || total < 1 || parts.length < total) return;
+                const serialized = parts.slice(0, total).map((part, index) => part.part === index ? part.payload : '').join('');
+                if (parts.slice(0, total).some((part, index) => part.part !== index)) return;
+                localStorage.setItem(storagePrefix + 'fac.' + key, JSON.stringify(JSON.parse(serialized)));
+                pendingLocal.delete(key);
+            });
         } catch (e) { showError('No se pudieron cargar los datos de Firestore. Comprueba que esté creado y que las reglas estén publicadas. ' + e.message); }
         window.__syncError = showError;
         window.__storePrefix = storagePrefix;
-        window.__cloudSave = async (key, value) => {
-            try { await setDoc(remoteRef, { [key]: value }, { merge: true }); }
-            catch (e) { showError('No se pudo sincronizar. Revisa la configuración y las reglas de Firestore. ' + e.message); }
+        const syncQueues = new Map();
+        const chunkUtf8 = (value, maximumBytes) => {
+            const encoder = new TextEncoder();
+            const chunks = [];
+            let chunk = '', chunkBytes = 0;
+            for (const character of value) {
+                const characterBytes = encoder.encode(character).length;
+                if (chunk && chunkBytes + characterBytes > maximumBytes) {
+                    chunks.push(chunk);
+                    chunk = '';
+                    chunkBytes = 0;
+                }
+                chunk += character;
+                chunkBytes += characterBytes;
+            }
+            if (chunk || !chunks.length) chunks.push(chunk);
+            return chunks;
         };
+        window.__cloudSave = async (key, value) => {
+            const previous = syncQueues.get(key) || Promise.resolve();
+            const save = previous.catch(() => {}).then(async () => {
+                const pieces = chunkUtf8(JSON.stringify(value), 300000);
+                const refs = pieces.map((_, index) => doc(db, 'users', user.uid, 'private', 'sync_' + key + '_' + index));
+                await Promise.all(pieces.map((payload, index) => setDoc(refs[index], {
+                    syncVersion: 1, key, part: index, total: pieces.length, payload
+                })));
+                const savedDocs = await getDocs(privateCollection);
+                const staleDocs = [];
+                savedDocs.forEach((savedDoc) => {
+                    const data = savedDoc.data();
+                    if (data.syncVersion === 1 && data.key === key && Number.isInteger(data.part) && data.part >= pieces.length) staleDocs.push(savedDoc.ref);
+                });
+                await Promise.all(staleDocs.map((staleRef) => deleteDoc(staleRef)));
+            });
+            syncQueues.set(key, save);
+            try { await save; }
+            catch (e) { showError('No se pudo sincronizar con Firestore. ' + (e.message || e)); }
+            finally { if (syncQueues.get(key) === save) syncQueues.delete(key); }
+        };
+        pendingLocal.forEach((serialized, key) => {
+            try { void window.__cloudSave(key, JSON.parse(serialized)); }
+            catch (e) { showError('No se pudieron recuperar los datos guardados en este dispositivo. ' + e.message); }
+        });
         window.addEventListener('error', function (e) {
             var b = document.getElementById('err');
             if (b) { b.hidden = false; b.textContent = 'Error en la página: ' + e.message + ' (línea ' + e.lineno + ')'; }
