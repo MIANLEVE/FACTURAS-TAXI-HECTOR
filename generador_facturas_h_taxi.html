@@ -600,6 +600,8 @@
             overflow-wrap: anywhere
         }
 
+        .kv dd.extra-value { color: #000; }
+
         .sh-meta {
             display: grid;
             grid-template-columns: auto auto;
@@ -1067,6 +1069,10 @@
                             placeholder="Introduce el teléfono" inputmode="tel" autocomplete="off"></label>
                     <label class="full">Dirección<textarea id="f-caddr" data-path="client.addr"
                             placeholder="Introduce la dirección"></textarea></label>
+                    <div class="full">
+                        <div id="clientExtraFields"></div>
+                        <button id="addClientField" type="button">+ Añadir campo</button>
+                    </div>
                 </div>
             </section>
 
@@ -1218,7 +1224,7 @@
             function uid() { return Math.random().toString(36).slice(2, 9); }
 
             var ISSUER0 = { name: '', dni: '', phone: '', email: '', addr: '' };
-            var CLIENT0 = { name: '', tel: '', addr: '' };
+            var CLIENT0 = { name: '', tel: '', addr: '', extraFields: [] };
             var LOGO_SVG = '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="49" fill="#fff" stroke="#111" stroke-width="1.5"/><circle cx="50" cy="50" r="41" fill="#111"/><circle cx="50" cy="50" r="36" fill="none" stroke="#bbb" stroke-width="1.2"/><text x="50" y="55" text-anchor="middle" font-family="Oswald,Impact,sans-serif" font-size="36" font-weight="600" fill="#e6e6e6">H</text><path d="M29 74l4-8h34l4 8v6H29z" fill="#d6d6d6"/><circle cx="37" cy="80" r="3.2" fill="#111"/><circle cx="63" cy="80" r="3.2" fill="#111"/><\/svg>';
             var LOGO_DATA = 'data:image/svg+xml;utf8,' + encodeURIComponent(LOGO_SVG);
 
@@ -1288,11 +1294,22 @@
             /* ===== Formulario ===== */
             function getp(p) { return p.split('.').reduce(function (o, k) { return o[k]; }, state); }
             function setp(p, v) { var a = p.split('.'), last = a.pop(); a.reduce(function (o, k) { return o[k]; }, state)[last] = v; }
+            function renderClientExtraFields() {
+                var host = $('#clientExtraFields');
+                if (!host) return;
+                var fields = Array.isArray(state.client.extraFields) ? state.client.extraFields : [];
+                host.innerHTML = fields.map(function (field, index) {
+                    return '<div class="line client-extra-row"><div class="line-head"><span>Campo adicional ' + (index + 1) + '</span><button type="button" class="danger" data-remove-client-extra="' + index + '">Quitar</button></div>' +
+                        '<div class="grid keep2"><label>Nombre del campo<input data-client-extra="label" data-index="' + index + '" placeholder="Ej.: NIF-IVA" value="' + esc(field.label || '') + '"></label>' +
+                        '<label>Dato<input data-client-extra="value" data-index="' + index + '" placeholder="Introduce el dato" value="' + esc(field.value || '') + '"></label></div></div>';
+                }).join('');
+            }
             function syncForm() {
                 document.querySelectorAll('[data-path]').forEach(function (el) {
                     if (el.type === 'radio') { el.checked = (getp(el.dataset.path) === el.value); }
                     else { el.value = getp(el.dataset.path); }
                 });
+                renderClientExtraFields();
                 $('#logoPrev').src = state.logo || LOGO_DATA;
             }
             function renderLines() {
@@ -1375,10 +1392,11 @@
                     return '<div class="tr"><span>' + nl(l.desc) + '</span><span>' + fmt(c.rows[i]) + '€</span></div>' + (d.length ? '<div class="detail">' + d.join('') + '</div>' : '');
                 }).join('');
                 var logo = s.logo ? '<img src="' + esc(s.logo) + '" alt="">' : LOGO_SVG;
+                var clientExtraHtml = (Array.isArray(s.client.extraFields) ? s.client.extraFields : []).filter(function (field) { return String(field.label || '').trim() && String(field.value || '').trim(); }).map(function (field) { return '<dt>' + nl(String(field.label).trim()) + ':</dt><dd class="extra-value">' + nl(field.value) + '</dd>'; }).join('');
                 $('#sheet').innerHTML =
                     '<div class="sh-top"><div class="sh-logo">' + logo + '</div><h2 class="sh-title">FACTURA</h2></div>' +
                     '<div class="sh-info"><div><h3 class="sh-h">INFORMACIÓN DEL CLIENTE</h3><dl class="kv">' +
-                    '<dt>Nombre:</dt><dd>' + nl(s.client.name) + '</dd><dt>Tel.:</dt><dd>' + nl(s.client.tel) + '</dd><dt>Dirección:</dt><dd>' + nl(s.client.addr) + '</dd></dl></div>' +
+                    '<dt>Nombre:</dt><dd>' + nl(s.client.name) + '</dd><dt>Tel.:</dt><dd>' + nl(s.client.tel) + '</dd><dt>Dirección:</dt><dd>' + nl(s.client.addr) + '</dd>' + clientExtraHtml + '</dl></div>' +
                     '<dl class="sh-meta"><dt>FACTURA:</dt><dd>' + nl(s.num) + '</dd><dt>FECHA:</dt><dd>' + fmtDate(s.date) + '</dd></dl></div>' +
                     '<div class="sh-table"><div class="th"><span style="padding-left:12cqw">Descripción</span><span>Importe</span></div>' + rowsHtml + '</div>' +
                     '<div class="rule" style="margin-left:8cqw;margin-right:7cqw"></div>' +
@@ -1395,7 +1413,8 @@
                 try {
                     state.num = inv.num || '';
                     state.date = inv.date || '';
-                    state.client = inv.client || { name: '', tel: '', addr: '' };
+                    state.client = inv.client || { name: '', tel: '', addr: '', extraFields: [] };
+                    if (!Array.isArray(state.client.extraFields)) state.client.extraFields = [];
                     state.issuer = inv.issuer || ISSUER0;
                     state.logo = inv.logo || '';
                     state.rate = inv.rate == null ? '0' : inv.rate;
@@ -1440,7 +1459,16 @@
             /* ===== Eventos ===== */
             document.addEventListener('input', function (e) {
                 var t = e.target;
-                if (t.dataset && t.dataset.path) {
+                if (t.dataset && t.dataset.clientExtra) {
+                    var extraIndex = Number(t.dataset.index);
+                    var extras = Array.isArray(state.client.extraFields) ? state.client.extraFields : (state.client.extraFields = []);
+                    if (extras[extraIndex]) {
+                        extras[extraIndex][t.dataset.clientExtra] = t.value;
+                        if (!$('#app').hidden) invoiceTouched = true;
+                        persist(); render();
+                        if (invoiceTouched) scheduleInvoiceSave(false);
+                    }
+                } else if (t.dataset && t.dataset.path) {
                     if (t.type === 'radio') { if (!t.checked) return; setp(t.dataset.path, t.value); renderLines(); }
                     else setp(t.dataset.path, t.value);
                     if (!$('#app').hidden) invoiceTouched = true;
@@ -1462,6 +1490,15 @@
             document.addEventListener('click', function (e) {
                 var b = e.target.closest('button');
                 if (!b) return;
+                if (b.dataset.removeClientExtra !== undefined) {
+                    var extraIndex = Number(b.dataset.removeClientExtra);
+                    if (Array.isArray(state.client.extraFields)) state.client.extraFields.splice(extraIndex, 1);
+                    renderClientExtraFields();
+                    if (!$('#app').hidden) invoiceTouched = true;
+                    persist(); render();
+                    if (invoiceTouched) scheduleInvoiceSave(false);
+                    return;
+                }
                 if (b.dataset.deleteInvoice !== undefined) {
                     var index = Number(b.dataset.deleteInvoice);
 
@@ -1581,11 +1618,19 @@
                 saveDraft();
                 syncForm(); renderLines(); render(); window.scrollTo({ top: 0 });
             });
+            $('#addClientField').addEventListener('click', function () {
+                if (!Array.isArray(state.client.extraFields)) state.client.extraFields = [];
+                state.client.extraFields.push({ label: '', value: '' });
+                renderClientExtraFields();
+                var index = state.client.extraFields.length - 1;
+                var field = document.querySelector('[data-client-extra="label"][data-index="' + index + '"]');
+                if (field) field.focus();
+            });
             $('#clientSel').addEventListener('change', function (e) {
                 var i = parseInt(e.target.value, 10);
                 var c = clients[i];
                 if (!Number.isInteger(i) || !c) return;
-                state.client = { name: c.name || '', tel: c.tel || '', addr: c.addr || '' };
+                state.client = { name: c.name || '', tel: c.tel || '', addr: c.addr || '', extraFields: Array.isArray(c.extraFields) ? JSON.parse(JSON.stringify(c.extraFields)) : [] };
                 invoiceTouched = true;
                 syncForm(); persist(); render(); scheduleInvoiceSave(false);
             });
@@ -1594,7 +1639,8 @@
                 var c = {
                     name: String(state.client.name || '').trim(),
                     tel: String(state.client.tel || '').trim(),
-                    addr: String(state.client.addr || '').trim()
+                    addr: String(state.client.addr || '').trim(),
+                    extraFields: Array.isArray(state.client.extraFields) ? JSON.parse(JSON.stringify(state.client.extraFields)) : []
                 };
                 if (!c.name) {
                     alert('Escribe el nombre del cliente antes de guardarlo.');
@@ -1632,7 +1678,7 @@
                 store.set('fac.clients', clients);
                 renderClients();
                 $('#clientSel').value = '';
-                state.client = { name: '', tel: '', addr: '' };
+                state.client = { name: '', tel: '', addr: '', extraFields: [] };
                 syncForm(); persist(); render();
                 if (invoiceTouched) scheduleInvoiceSave(false);
             });
