@@ -1159,7 +1159,12 @@
         const auth = getAuth(fbApp);
         const db = getFirestore(fbApp);
         const errBox = document.getElementById('err');
-        const showError = (error) => { errBox.hidden = false; errBox.textContent = error?.message || 'No se pudo conectar con Firebase.'; };
+        const showError = (error) => {
+            errBox.hidden = false;
+            errBox.textContent = typeof error === 'string'
+                ? error
+                : (error?.message || 'No se pudo conectar con Firebase.');
+        };
         const user = await new Promise((resolve) => {
             const unsub = onAuthStateChanged(auth, (u) => { unsub(); resolve(u); }, (e) => { showError(e); resolve(null); });
         });
